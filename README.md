@@ -67,3 +67,24 @@ The notebook also includes a SHAP summary plot calculated with TreeExplainer on 
 - The dataset and saved model binary are not committed.
 - Results are specific to this dataset, split, model configuration and threshold. They do not establish production readiness or guarantee performance on new transaction populations.
 - The decision threshold should be selected with the operational costs of false negatives and false positives in mind.
+
+
+## Chronological validation experiment
+
+An additional time-based experiment is included at the end of the improved notebook. After removing exact duplicates, records are sorted by the dataset's `Time` field (elapsed seconds since the first transaction) and divided chronologically:
+- Training: earliest 60% — 170,235 records, 342 fraud cases (0.2010%)
+- Validation: next 20% — 56,745 records, 57 fraud cases (0.1004%)
+- Test: latest 20% — 56,746 records, 74 fraud cases (0.1304%)
+
+This experiment evaluates the **Logistic Regression + SMOTE baseline only**. Its validation-selected F2 threshold was approximately **0.999976**. On the latest chronological test period it achieved:
+- Average Precision (PR-AUC): **0.7488**
+- ROC-AUC: **0.9802**
+- Precision: **0.7879**
+- Recall: **0.7027**
+- F1: **0.7429**
+- F2: **0.7182**
+- Confusion matrix (TN, FP, FN, TP): **56,658; 14; 22; 52**
+
+The default 0.50 threshold yielded 89.19% recall but only 4.22% precision on this chronological test period, illustrating the substantial threshold trade-off.
+
+**Important comparison note:** the earlier stratified experiment's final model was Random Forest; the chronological experiment uses Logistic Regression + SMOTE. These figures should not be interpreted as a clean comparison of split strategies alone. The chronological test contains only 74 fraud cases and the dataset spans approximately 48 hours, so this is a short-horizon stress test—not evidence of long-term or production robustness.
