@@ -4,7 +4,7 @@ This repository contains a credit-card fraud classification project using the an
 
 ## Improved, executed workflow
 
-The improved notebook is **[Credit_Card_Fraud_Detection_Improved_Executed.ipynb](Credit_Card_Fraud_Detection_Improved_Executed.ipynb)**. It was executed end to end and saved with its outputs.
+The improved notebook is **[Credit_Card_Fraud_Detection_Improved_Executed.ipynb](Credit_Card_Fraud_Detection_Improved_Executed.ipynb)**. It includes the complete model-training workflow, held-out test evaluation, feature-importance analysis and optional SHAP explanations.
 
 The workflow:
 - inspects missing values, class balance and exact duplicates;
@@ -15,7 +15,9 @@ The workflow:
 - selects the model using validation Average Precision (PR-AUC);
 - tunes a decision threshold on validation data using F2;
 - evaluates once on the untouched test set;
-- saves the selected model and threshold and demonstrates inference.
+- saves the selected model and threshold and demonstrates inference;
+- analyses permutation feature importance on a separate validation sample;
+- provides optional SHAP TreeExplainer explanations for the selected Random Forest.
 
 ## Dataset
 
@@ -45,9 +47,23 @@ On the untouched test set, at that threshold:
 
 For comparison, at the default 0.50 threshold, test precision was 0.9595 and recall was 0.7474. The lower selected threshold detected more fraud cases at the cost of more false alerts.
 
+## Model analysis
+
+Permutation importance was computed using Average Precision on a reproducible 10,000-row validation sample (3 repeats), not on the final test set. The most influential features in this run were:
+1. `V4` — mean AP decrease **0.084781**
+2. `V14` — **0.023661**
+3. `V11` — **0.017915**
+4. `V9` — **0.016212**
+5. `V18` — **0.015895**
+
+These are model-specific predictive importance estimates, not causal findings. `V1`–`V28` are anonymised PCA components, so their underlying real-world meanings cannot be inferred from the available dataset.
+
+The notebook also includes a SHAP summary plot calculated with TreeExplainer on 500 validation transactions. SHAP explains the fitted model's predictions; it does not establish causal relationships.
+
 ## Reproducibility and limitations
 
-- The executed notebook contains 13 executed code cells and no execution errors.
+- The notebook contains 15 executed code cells and no execution errors.
 - The model artifact is saved by the notebook as `credit_card_fraud_model.joblib`; it is not committed here.
+- The dataset and saved model binary are not committed.
 - Results are specific to this dataset, split, model configuration and threshold. They do not establish production readiness or guarantee performance on new transaction populations.
 - The decision threshold should be selected with the operational costs of false negatives and false positives in mind.
